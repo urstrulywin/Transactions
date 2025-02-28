@@ -1,0 +1,48 @@
+# Node.js and NPM
+node_modules/
+package-lock.json
+yarn.lock
+npm-debug.log
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.production
+
+# Build and output files
+dist/
+build/
+*.log
+.cache/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# React and frontend files
+/.pnp
+.pnp.js
+/coverage
+/.next/
+/out/
+
+# MongoDB and database files
+/data/
+*.db
+*.db-journal
+
+# Miscellaneous
+*.tmp
+*.bak
+*.patch
+*.diff
