@@ -39,6 +39,8 @@ export const SignIn = () => {
 
       if (response.data.token) {
         localStorage.setItem("token", response.data.token);
+        console.log("Signin successful:", response);
+        localStorage.setItem("username", username);
         navigate("/dashboard");
       } else {
         setError("Signin failed. Please try again.");

@@ -1,16 +1,12 @@
 import PropTypes from 'prop-types';
 
 export const Balance = ({ value }) => {
-    console.log("Balance Value:", value); // Debugging line
-    const formattedValue = typeof value === 'number' ? value.toFixed(2) : '0.00';
+    const formattedValue = Number.isFinite(value) ? value.toFixed(2) : '0.00';
+
     return (
-        <div className="flex">
-            <div className="font-bold text-lg">
-                Your Balance:
-            </div>
-            <div className="font-semibold ml-4 text-lg">
-                Rs. {formattedValue}
-            </div>
+        <div className="bg-white p-4 rounded-lg shadow flex items-center justify-between max-w-md w-full mx-auto">
+            <h2 className="text-gray-600 text-lg font-semibold">Your Balance</h2>
+            <p className="text-green-600 text-xl font-bold">₹ {formattedValue}</p>
         </div>
     );
 };

@@ -9,26 +9,29 @@ export const Users = () => {
     const [filter, setFilter] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const loggedInUsername = localStorage.getItem("username");
 
     useEffect(() => {
         const fetchUsers = async () => {
             setLoading(true);
             setError("");
             try {
-                const token = localStorage.getItem("token"); // Retrieve the token from localStorage
-                if (!token) {
-                    throw new Error("No token found");
-                }
-        
+                const token = localStorage.getItem("token");
+                if (!token) throw new Error("No token found");
+
                 const response = await axios.get(
-                    `http://localhost:3000/api/user/bulk?filter=${filter}`,
+                    `${import.meta.env.VITE_BACKEND_URL}/api/user/bulk?filter=${filter}`,
                     {
                         headers: {
-                            Authorization: `Bearer ${token}`, // Include the token in the request headers
+                            Authorization: `Bearer ${token}`,
                         },
                     }
                 );
-                setUsers(response.data.users);
+
+                const filteredUsers = response.data.users.filter(
+                    (user) => user.username !== loggedInUsername
+                );
+                setUsers(filteredUsers);
             } catch (error) {
                 console.error("Error fetching users:", error);
                 setError("Failed to fetch users. Please try again.");
@@ -37,35 +40,38 @@ export const Users = () => {
             }
         };
 
-        // Debounce the API call
-        const debounceTimer = setTimeout(() => {
-            fetchUsers();
-        }, 300); // 300ms delay
-
-        return () => clearTimeout(debounceTimer); // Cleanup on unmount or filter change
-    }, [filter]);
+        const debounceTimer = setTimeout(fetchUsers, 300);
+        return () => clearTimeout(debounceTimer);
+    }, [filter, loggedInUsername]);
 
     return (
-        <>
-            <div className="font-bold mt-6 text-lg">Users</div>
-            <div className="my-2">
+        <div className="max-w-2xl mx-auto px-4 py-8">
+            <h1 className="text-2xl font-bold mb-4">Send Money</h1>
+
+            <div className="mb-6">
                 <input
-                    onChange={(e) => setFilter(e.target.value)}
                     type="text"
+                    value={filter}
+                    onChange={(e) => setFilter(e.target.value)}
                     placeholder="Search users..."
-                    className="w-full px-2 py-1 border rounded border-slate-200"
+                    className="w-full sm:w-80 px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
             </div>
+
             {loading ? (
-                <p>Loading...</p>
+                <p>Loading users...</p>
             ) : error ? (
                 <p className="text-red-500">{error}</p>
             ) : users.length === 0 ? (
                 <p>No users found.</p>
             ) : (
-                users.map((user) => <User key={user._id} user={user} />)
+                <div className="space-y-4">
+                    {users.map((user) => (
+                        <User key={user._id} user={user} />
+                    ))}
+                </div>
             )}
-        </>
+        </div>
     );
 };
 
@@ -73,27 +79,19 @@ function User({ user }) {
     const navigate = useNavigate();
 
     return (
-        <div className="flex justify-between">
-            <div className="flex">
-                <div className="rounded-full h-12 w-12 bg-slate-200 flex justify-center mt-1 mr-2">
-                    <div className="flex flex-col justify-center h-full text-xl">
-                        {user.firstname ? user.firstname[0].toUpperCase() : ""}
-                    </div>
+        <div className="flex items-center justify-between bg-white shadow-md p-4 rounded-lg hover:shadow-lg transition">
+            <div className="flex items-center space-x-3">
+                <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center text-lg font-semibold text-green-700">
+                    {user.firstname?.[0]?.toUpperCase()}
                 </div>
-                <div className="flex flex-col justify-center h-full">
-                    <div>
-                        {user.firstname} {user.lastname}
-                    </div>
+                <div className="text-sm font-medium">
+                    {user.firstname} {user.lastname}
                 </div>
             </div>
-            <div className="flex flex-col justify-center h-full">
-                <Button
-                    onClick={() => {
-                        navigate(`/send?id=${user._id}&name=${user.firstname}`);
-                    }}
-                    label={"Send Money"}
-                />
-            </div>
+            <Button
+                onClick={() => navigate(`/send?id=${user._id}&name=${user.firstname}`)}
+                label="Send Money"
+            />
         </div>
     );
 }
