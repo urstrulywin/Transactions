@@ -74,24 +74,25 @@ export const Users = () => {
         </div>
     );
 };
-
 function User({ user }) {
     const navigate = useNavigate();
 
     return (
         <div className="flex items-center justify-between bg-white shadow-md p-4 rounded-lg hover:shadow-lg transition">
             <div className="flex items-center space-x-3">
-                <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center text-lg font-semibold text-green-700">
+                <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-lg font-semibold text-green-700">
                     {user.firstname?.[0]?.toUpperCase()}
                 </div>
-                <div className="text-sm font-medium">
+                <div className="text-lg font-medium text-gray-800">
                     {user.firstname} {user.lastname}
                 </div>
             </div>
-            <Button
+            <button
                 onClick={() => navigate(`/send?id=${user._id}&name=${user.firstname}`)}
-                label="Send Money"
-            />
+                className="bg-green-600 hover:bg-green-700 text-white text-lg px-4 py-1.5 rounded-md"
+            >
+                Send
+            </button>
         </div>
     );
 }

@@ -1,7 +1,6 @@
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import axios from 'axios';
-import { Appbar } from '../components/Appbar';
 
 export const Transfer = () => {
   const [searchParams] = useSearchParams();

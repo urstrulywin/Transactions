@@ -30,17 +30,14 @@ const transferSchema = zod.object({
 
 router.post("/transfer", auth, async (req, res) => {
     const session = await mongoose.startSession();
-    session.startTransaction();
 
     try {
         const { amount, to } = transferSchema.parse(req.body);
 
-        console.log("Transfer initiated", { from: req.userId, to, amount });
+        session.startTransaction(); // ✅ Ensure the transaction starts here
 
-        const [fromAccount, toAccount] = await Promise.all([
-            Account.findOne({ userId: req.userId }).session(session),
-            Account.findOne({ userId: to }).session(session)
-        ]);
+        const fromAccount = await Account.findOne({ userId: req.userId }).session(session);
+        const toAccount = await Account.findOne({ userId: to }).session(session);
 
         if (!fromAccount || !toAccount) {
             await session.abortTransaction();
@@ -52,18 +49,22 @@ router.post("/transfer", auth, async (req, res) => {
             return res.status(400).json({ message: "Insufficient balance" });
         }
 
-        await Account.updateOne({ userId: req.userId }, { $inc: { balance: -amount } }).session(session);
-        await Account.updateOne({ userId: to }, { $inc: { balance: amount } }).session(session);
+        fromAccount.balance -= amount;
+        toAccount.balance += amount;
+
+        // ✅ Save using the session
+        await fromAccount.save({ session });
+        await toAccount.save({ session });
 
         await session.commitTransaction();
-        res.json({ message: "Transfer successful" });
+        res.status(200).json({ message: "Transfer successful" });
     } catch (error) {
         await session.abortTransaction();
 
         if (error instanceof zod.ZodError) {
             return res.status(400).json({
                 message: "Invalid input",
-                errors: error.errors.map((err) => err.message)
+                errors: error.errors.map(err => err.message),
             });
         }
 

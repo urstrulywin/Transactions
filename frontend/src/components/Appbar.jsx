@@ -7,7 +7,7 @@ export const Appbar = () => {
   return (
     <div className="shadow-md h-16 flex justify-between items-center px-6 bg-white">
       <div className="text-xl font-semibold text-gray-800">
-        Transactions
+        Transactify 💸
       </div>
       <div className="flex items-center space-x-4">
         <div className="text-lg font-medium text-gray-700">
